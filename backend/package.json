@@ -1,14 +1,17 @@
 {
-  "name": "backend",
+  "name": "quiz-app-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Quiz application backend",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "postbuild": "cp package.json dist/"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
