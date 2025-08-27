@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
+import logger from './utils/logger';
 
 import authRoutes from './routes/auth';
 import questionsRoutes from './routes/questions';
@@ -13,9 +15,22 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const API_PREFIX = process.env.API_PREFIX || '/api';
 
 // Security middleware
-app.use(helmet());
+app.set('trust proxy', 1);
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+// Basic rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 // CORS configuration
 app.use(cors({
@@ -39,9 +54,9 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/questions', questionsRoutes);
-app.use('/api/quiz', quizRoutes);
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/questions`, questionsRoutes);
+app.use(`${API_PREFIX}/quiz`, quizRoutes);
 
 // 404 handler
 app.use(notFound);
@@ -50,10 +65,27 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
+const server = app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`Environment: ${process.env.NODE_ENV}`);
+  logger.info(`Frontend URL: ${process.env.FRONTEND_URL}`);
+});
+
+// Graceful shutdown
+const signals: NodeJS.Signals[] = ['SIGTERM', 'SIGINT'];
+signals.forEach((sig) => {
+  process.on(sig, () => {
+    logger.info(`Received ${sig}, shutting down gracefully...`);
+    server.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+    // Force close after timeout
+    setTimeout(() => {
+      logger.error('Forcing shutdown');
+      process.exit(1);
+    }, 10000).unref();
+  });
 });
 
 export default app;

@@ -21,7 +21,13 @@ export class QuestionsController {
 
   static async create(req: AuthRequest, res: Response) {
     try {
-      const questionData = req.body;
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+          error: 'Invalid payload',
+          message: 'Request body is required with all question fields'
+        });
+      }
+      const questionData = req.body as CreateQuestionRequest;
       const userId = req.user!.id;
 
       const question = await QuestionModel.create(questionData, userId);

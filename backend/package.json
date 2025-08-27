@@ -4,10 +4,15 @@
   "description": "Quiz application backend",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "nodemon src/app.ts",
+    "dev": "nodemon --watch src --ext ts,js,json --exec ts-node src/app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "postbuild": "cp package.json dist/"
+    "start:prod": "set NODE_ENV=production&& node dist/app.js",
+    "postbuild": "node -e \"require('fs').copyFileSync('package.json','dist/package.json')\"",
+    "db:create": "node -e \"console.log('Use psql to create DB: CREATE DATABASE quiz_app;')\"",
+    "db:migrate": "powershell -Command \"$env:PGPASSWORD=$env:DB_PASSWORD; psql -U $env:DB_USERNAME -h $env:DB_HOST -p $env:DB_PORT -d $env:DB_NAME -f ./src/utils/schema.sql\"",
+  "db:setup": "ts-node src/utils/dbSetup.ts",
+  "db:seed": "ts-node src/utils/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
     "helmet": "^8.1.0",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
