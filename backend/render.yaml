@@ -3,6 +3,7 @@ services:
     name: quiz-app-backend
     env: node
     plan: free
+    rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm run start
     autoDeploy: true
@@ -10,9 +11,20 @@ services:
       - key: NODE_ENV
         value: production
       - key: FRONTEND_URL
-        sync: false
+        sync: false        # set in Render after frontend is live
       - key: JWT_SECRET
         sync: false
       - key: DATABASE_URL
-        sync: false
+        sync: false        # use Render Postgres or Neon connection string
     postdeploy: "npm run db:setup && npm run db:seed"
+
+  - type: static
+    name: quiz-app-frontend
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false        
+        # e.g. https://quiz-app-backend.onrender.com/api
