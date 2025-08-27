@@ -19,6 +19,7 @@ const API_PREFIX = process.env.API_PREFIX || '/api';
 
 // Security middleware
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
@@ -32,12 +33,47 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration (strict)
+function normalizeOrigin(val: string): string | null {
+  try {
+    const u = new URL(val);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return `${u.protocol}//${u.host}`.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+const rawOrigins: string[] = [
+  ...(process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',') : []),
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+  ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:5173'] : []),
+].map(s => s.trim()).filter(Boolean);
+
+const allowedOriginsSet = new Set(
+  rawOrigins
+    .map(normalizeOrigin)
+    .filter((v): v is string => Boolean(v))
+);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: (origin, callback) => {
+    if (!origin) {
+      // In production, block requests with no Origin (e.g., curl) to reduce attack surface
+      if (process.env.NODE_ENV === 'production') {
+        logger.warn('CORS blocked request with no Origin header');
+        return callback(new Error('Not allowed by CORS'));
+      }
+      return callback(null, true);
+    }
+    const normalized = origin.toLowerCase();
+    if (allowedOriginsSet.has(normalized)) return callback(null, true);
+    logger.warn(`CORS blocked origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: false, // no cookies required; tokens are in Authorization header
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Body parsing middleware
@@ -69,6 +105,9 @@ const server = app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV}`);
   logger.info(`Frontend URL: ${process.env.FRONTEND_URL}`);
+  if (allowedOriginsSet.size) {
+    logger.info(`CORS allowed origins: ${Array.from(allowedOriginsSet).join(', ')}`);
+  }
 });
 
 // Graceful shutdown
