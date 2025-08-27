@@ -49,10 +49,9 @@ export interface RegisterData {
   password: string;
 }
 
-export interface ApiResponse<T = unknown> {
+export type ApiResponse<T = unknown> = {
   message: string;
-  [key: string]: T | string;
-}
+} & T;
 
 export interface ApiError {
   error: string;
