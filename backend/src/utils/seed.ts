@@ -34,6 +34,19 @@ async function upsertDefaultUser(client: Client) {
   );
 }
 
+async function upsertDemoUser(client: Client) {
+  const email = 'demo@example.com';
+  const name = 'Demo User';
+  const password = await hashPassword('password123');
+  await client.query(
+    `INSERT INTO users(name, email, password)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
+     RETURNING id`,
+    [name, email, password]
+  );
+}
+
 async function seedQuestions(client: Client) {
   // Get admin user id
   const { rows } = await client.query('SELECT id FROM users WHERE email = $1', ['admin@example.com']);
@@ -89,6 +102,7 @@ async function seedQuestions(client: Client) {
   const client = await getClient();
   try {
     await upsertDefaultUser(client);
+  await upsertDemoUser(client);
     await seedQuestions(client);
     console.log('Seeding complete');
     process.exit(0);

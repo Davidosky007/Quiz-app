@@ -16,6 +16,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAnswers, setShowAnswers] = useState(false);
   const { deleteQuestion } = useQuestionsStore();
 
   const handleDelete = async () => {
@@ -94,7 +95,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate }) => {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsEditing(true)}
-            className="text-blue-600 hover:text-blue-800 p-1"
+            className="text-violet-600 hover:text-violet-800 p-1"
             title="Edit question"
           >
             <Edit size={18} />
@@ -119,24 +120,31 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate }) => {
             <div
               key={index}
               className={`p-3 rounded-md border flex items-center space-x-2 ${
-                isCorrect 
-                  ? 'bg-green-50 border-green-200 text-green-800' 
+                showAnswers && isCorrect 
+                  ? 'bg-green-50 border-green-200 text-green-800'
                   : 'bg-gray-50 border-gray-200 text-gray-700'
               }`}
             >
               <span className="font-medium text-sm">{letter}.</span>
               <span className="flex-1">{option}</span>
-              {isCorrect && <Check size={16} className="text-green-600" />}
+              {showAnswers && isCorrect && <Check size={16} className="text-green-600" />}
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 text-sm text-gray-500">
-        <p>Correct answer: <span className="font-medium text-green-600">{question.correct_answer}</span></p>
-        {question.created_at && (
-          <p>Created: {new Date(question.created_at).toLocaleDateString()}</p>
-        )}
+      <div className="mt-4 flex items-center justify-between">
+        <button
+          onClick={() => setShowAnswers((s) => !s)}
+          className="btn btn-secondary"
+        >
+          {showAnswers ? 'Hide Answers' : 'Reveal Answers'}
+        </button>
+        <div className="text-sm text-gray-500">
+          {question.created_at && (
+            <p>Created: {new Date(question.created_at).toLocaleDateString()}</p>
+          )}
+        </div>
       </div>
     </div>
   );

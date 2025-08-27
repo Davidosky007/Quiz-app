@@ -15,10 +15,10 @@ const Loader: React.FC<LoaderProps> = ({ size = 'md', text }) => {
   return (
     <div className="flex flex-col items-center justify-center space-y-2">
       <div
-        className={`${sizeClasses[size]} border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin`}
+  className={`${sizeClasses[size]} border-4 border-gray-200 border-t-violet-600 rounded-full animate-spin`}
       />
       {text && (
-        <p className="text-gray-600 text-sm">{text}</p>
+  <p className="text-gray-600 text-sm">{text}</p>
       )}
     </div>
   );

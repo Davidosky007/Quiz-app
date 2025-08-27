@@ -19,7 +19,7 @@ const Results: React.FC = () => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const getScoreColor = (score: number): string => {
@@ -84,7 +84,7 @@ const Results: React.FC = () => {
               <Clock className="text-blue-600" size={24} />
               <span className="text-blue-800 font-semibold">Time</span>
             </div>
-            <div className="text-2xl font-bold text-blue-600">{formatTime(timeTaken)}</div>
+            <div className="text-2xl font-bold text-violet-600">{formatTime(timeTaken)}</div>
           </div>
         </div>
 

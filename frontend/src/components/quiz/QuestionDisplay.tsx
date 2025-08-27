@@ -78,7 +78,7 @@ const QuestionDisplay: React.FC = () => {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-violet-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             />
           </div>
@@ -102,13 +102,13 @@ const QuestionDisplay: React.FC = () => {
                   onClick={() => handleAnswerSelect(letter as 'A' | 'B' | 'C' | 'D')}
                   className={`w-full text-left p-4 rounded-lg border transition-colors ${
                     isSelected
-                      ? 'border-blue-500 bg-blue-50 text-blue-900'
+                      ? 'border-violet-500 bg-violet-50 text-violet-900'
                       : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                      isSelected ? 'border-violet-500 bg-violet-500' : 'border-gray-300'
                     }`}>
                       {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
@@ -147,7 +147,7 @@ const QuestionDisplay: React.FC = () => {
                   onClick={() => goToQuestion(index)}
                   className={`w-8 h-8 rounded text-sm font-medium ${
                     isCurrent
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-violet-600 text-white'
                       : isAnswered
                       ? 'bg-green-100 text-green-800 border border-green-200'
                       : 'bg-gray-100 text-gray-600 border border-gray-200'
