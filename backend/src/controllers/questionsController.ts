@@ -1,9 +1,9 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { QuestionModel } from '../models/Question';
 import { AuthRequest, CreateQuestionRequest, UpdateQuestionRequest } from '../types';
 
 export class QuestionsController {
-  static async getAll(req: AuthRequest, res: Response) {
+  static async getAll(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       const questions = await QuestionModel.findAll();
       res.json({
@@ -19,7 +19,7 @@ export class QuestionsController {
     }
   }
 
-  static async create(req: AuthRequest, res: Response) {
+  static async create(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({
@@ -32,7 +32,7 @@ export class QuestionsController {
 
       const question = await QuestionModel.create(questionData, userId);
 
-      res.status(201).json({
+  res.status(201).json({
         message: 'Question created successfully',
         question
       });
@@ -45,7 +45,7 @@ export class QuestionsController {
     }
   }
 
-  static async update(req: AuthRequest, res: Response) {
+  static async update(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       const questionId = parseInt(req.params.id);
       const questionData = req.body;
@@ -66,7 +66,7 @@ export class QuestionsController {
         });
       }
 
-      res.json({
+  res.status(200).json({
         message: 'Question updated successfully',
         question
       });
@@ -79,7 +79,7 @@ export class QuestionsController {
     }
   }
 
-  static async delete(req: AuthRequest, res: Response) {
+  static async delete(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       const questionId = parseInt(req.params.id);
 
@@ -99,9 +99,7 @@ export class QuestionsController {
         });
       }
 
-      res.json({
-        message: 'Question deleted successfully'
-      });
+  res.status(204).send();
     } catch (error) {
       console.error('Delete question error:', error);
       res.status(500).json({

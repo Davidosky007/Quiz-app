@@ -1,10 +1,10 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { QuestionModel } from '../models/Question';
 import { QuizResultModel } from '../models/QuizResult';
 import { AuthRequest, QuizSubmission, QuizAnswer } from '../types';
 
 export class QuizController {
-  static async startQuiz(req: AuthRequest, res: Response) {
+  static async startQuiz(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       // Get all questions without correct answers
       const questions = await QuestionModel.findAllForQuiz();
@@ -29,7 +29,7 @@ export class QuizController {
     }
   }
 
-  static async submitQuiz(req: AuthRequest, res: Response) {
+  static async submitQuiz(req: AuthRequest, res: Response, _next: NextFunction) {
     try {
       const { answers, timeTaken } = req.body as QuizSubmission;
       const userId = req.user!.id;
@@ -60,7 +60,7 @@ export class QuizController {
         correct_answers: correctCount
       });
 
-      res.json({
+  res.status(201).json({
         message: 'Quiz submitted successfully',
         result: {
           score,

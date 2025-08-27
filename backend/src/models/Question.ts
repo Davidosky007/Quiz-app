@@ -80,7 +80,7 @@ export class QuestionModel {
   return (result.rowCount ?? 0) > 0;
   }
 
-  static async getCorrectAnswers(questionIds: number[]): Promise<{ id: number; correct_answer: string }[]> {
+  static async getCorrectAnswers(questionIds: number[]): Promise<{ id: number; correct_answer: 'A' | 'B' | 'C' | 'D' }[]> {
     const query = 'SELECT id, correct_answer FROM questions WHERE id = ANY($1)';
     const result = await pool.query(query, [questionIds]);
     return result.rows;
